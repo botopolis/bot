@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/berfarah/gobot/brain"
-	"github.com/berfarah/gobot/brain/redis"
 	"github.com/nlopes/slack"
 )
 
@@ -24,12 +23,11 @@ type Robot struct {
 	triggers map[string]trigger
 }
 
-func New(secret string) *Robot {
-	redis := redis.New("localhost:6379")
+func New(secret string, store brain.Store) *Robot {
 	return &Robot{
 		api:      slack.New(secret),
 		triggers: newTriggers(),
-		Brain:    brain.New(redis),
+		Brain:    brain.New(store),
 	}
 }
 
