@@ -26,6 +26,18 @@
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
+  name = "github.com/gorilla/context"
+  packages = ["."]
+  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
+  version = "v1.1"
+
+[[projects]]
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  revision = "53c1911da2b537f792e7cafcb446b05ffe33b996"
+  version = "v1.6.1"
+
+[[projects]]
   name = "github.com/nlopes/slack"
   packages = ["."]
   revision = "d86785d50d4be9c2e11cfbb0ed601f5dcb22899c"
@@ -69,6 +81,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3339a5fab9b6ca453f161bb247fa7f12e7687327609dd89b47f1682127030072"
+  inputs-digest = "7c858f1666e0ff72075e75cd7eb9459dcc1b78c0caee218c83a8d995dcb65a6a"
   solver-name = "gps-cdcl"
   solver-version = 1
