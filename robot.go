@@ -5,6 +5,7 @@ import (
 
 	"github.com/berfarah/gobot/brain"
 	"github.com/nlopes/slack"
+	"github.com/op/go-logging"
 )
 
 type Plugin func(*Robot)
@@ -14,6 +15,8 @@ type Robot struct {
 	api *slack.Client
 
 	Brain *brain.Brain
+
+	Logger *logging.Logger
 
 	// Bot info
 	ID   string
@@ -28,10 +31,18 @@ func New(secret string, store brain.Store) *Robot {
 		api:      slack.New(secret),
 		triggers: newTriggers(),
 		Brain:    brain.New(store),
+		Logger:   newLogger(),
 	}
 }
 
-func (r *Robot) Load(p Plugin) { p(r) }
+func (r *Robot) Load(plugins ...Plugin) {
+	for _, p := range plugins {
+		if p != nil {
+			p(r)
+		}
+	}
+	r.Logger.Debugf("%d plugins loaded", len(plugins))
+}
 
 func (r *Robot) Connect() {
 	r.rtm = r.api.NewRTM()
@@ -74,25 +85,20 @@ func (r *Robot) runListeners(ev *slack.MessageEvent) {
 
 func (r *Robot) listenEvents() {
 	for msg := range r.rtm.IncomingEvents {
-		// fmt.Print("Event Received: ")
 		switch ev := msg.Data.(type) {
 		case *slack.HelloEvent:
-			// fmt.Println("Hello")
-
 		case *slack.ConnectedEvent:
-			// fmt.Printf("Connected: %v\n", ev.ConnectionCount)
 			r.onConnect(ev)
+			r.Logger.Debugf("Connected as %s: %d", r.ID, ev.ConnectionCount)
 		case *slack.MessageEvent:
 			r.runListeners(ev)
 		case *slack.RTMError:
-			// fmt.Printf("Error: %s\n", ev.Error())
-
+			r.Logger.Errorf("RTM Error: %s", ev.Error())
 		case *slack.InvalidAuthEvent:
-			// fmt.Printf("Invalid credentials")
+			r.Logger.Error("Slack: Invalid Credentials")
 			return
-
 		default:
-			// fmt.Printf("Unexpected: %v\n", msg.Data)
+			r.Logger.Debugf("Unhandled Slack event: %s", msg.Type)
 		}
 	}
 }

@@ -41,13 +41,19 @@ func (mt *messageTrigger) Add(h *Hook) {
 	mt.hooks = append(mt.hooks, h)
 }
 
+func (mt *messageTrigger) runHooks(r *Robot, msg *slack.MessageEvent) {
+	for _, h := range mt.hooks {
+		if err := h.Run(newResponder(r, msg)); err != nil {
+			r.Logger.Errorf("Hook %s errored: %s", h.Name, err.Error())
+		}
+	}
+}
+
 func (mt *messageTrigger) Run(r *Robot, msg *slack.MessageEvent) bool {
 	if msg.SubType != mt.subType {
 		return false
 	}
-	for _, h := range mt.hooks {
-		h.Run(newResponder(r, msg))
-	}
+	mt.runHooks(r, msg)
 	return true
 }
 
@@ -60,9 +66,7 @@ func (rt *respondTrigger) Run(r *Robot, msg *slack.MessageEvent) bool {
 	if err != nil || !reg.MatchString(msg.Text) {
 		return false
 	}
-	for _, h := range rt.hooks {
-		h.Run(newResponder(r, msg))
-	}
+	rt.runHooks(r, msg)
 	return true
 }
 

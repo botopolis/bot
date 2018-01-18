@@ -28,3 +28,6 @@
 [[constraint]]
   name = "github.com/go-redis/redis"
   version = "6.8.0"
+
+[[constraint]]
+  name = "github.com/op/go-logging"

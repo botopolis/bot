@@ -1,7 +1,6 @@
 package gobot
 
 import (
-	"fmt"
 	"regexp"
 )
 
@@ -17,7 +16,7 @@ func (h *Hook) Run(r *Responder) error {
 		return nil
 	}
 	if err := h.Func(r); err != nil {
-		return fmt.Errorf("Hook Error in %s: %s", h.Name, err.Error())
+		return err
 	}
 	return nil
 }
