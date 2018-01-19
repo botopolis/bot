@@ -27,12 +27,14 @@ type Robot struct {
 
 	// Event management
 	triggers map[string]trigger
+	events   *EventDispatcher
 }
 
 func New(secret string, store brain.Store) *Robot {
 	return &Robot{
 		api:      slack.New(secret),
 		triggers: newTriggers(),
+		events:   NewEventDispatcher(),
 		Brain:    brain.New(store),
 		Router:   mux.NewRouter(),
 		Logger:   newLogger(),
