@@ -5,39 +5,37 @@ import (
 	"os"
 
 	"github.com/berfarah/gobot/brain"
-	mux "github.com/gorilla/mux"
-	"github.com/nlopes/slack"
+	"github.com/gorilla/mux"
 	"github.com/op/go-logging"
 )
 
 type Plugin func(*Robot)
 
 type Robot struct {
-	rtm    *slack.RTM
-	api    *slack.Client
 	server *http.Server
 
-	Brain  *brain.Brain
-	Router *mux.Router
-	Logger *logging.Logger
+	Adapter Adapter
+	Brain   *brain.Brain
+	Router  *mux.Router
+	Logger  *logging.Logger
 
 	// Bot info
-	ID   string
 	Name string
 
 	// Event management
-	triggers map[string]trigger
+	triggers map[string][]*Hook
 	events   *EventDispatcher
 }
 
-func New(secret string, store brain.Store) *Robot {
+func New(secret string, a Adapter, store brain.Store) *Robot {
 	return &Robot{
-		api:      slack.New(secret),
+		Adapter: a,
+		Brain:   brain.New(store),
+		Router:  mux.NewRouter(),
+		Logger:  newLogger(),
+
 		triggers: newTriggers(),
 		events:   NewEventDispatcher(),
-		Brain:    brain.New(store),
-		Router:   mux.NewRouter(),
-		Logger:   newLogger(),
 	}
 }
 
@@ -53,7 +51,7 @@ func (r *Robot) Install(plugins ...Plugin) {
 
 func (r *Robot) Start(address string) {
 	r.listenHTTP(address)
-	r.listenEvents()
+	// r.listenEvents()
 	r.stopHTTP()
 	os.Exit(0)
 }
