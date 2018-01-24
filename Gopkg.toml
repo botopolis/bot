@@ -26,10 +26,6 @@
   revision = "d86785d50d4be9c2e11cfbb0ed601f5dcb22899c"
 
 [[constraint]]
-  name = "github.com/go-redis/redis"
-  version = "6.8.0"
-
-[[constraint]]
   name = "github.com/op/go-logging"
 
 [[constraint]]
