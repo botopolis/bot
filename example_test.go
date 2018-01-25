@@ -14,10 +14,14 @@ type ExamplePlugin struct {
 func (p *ExamplePlugin) Load(r *gobot.Robot) { p.Username = "beardroid" }
 
 func Example() {
-	robot := gobot.New(NewChat())
+	// Ignore this - just example setup
+	chat := NewChat()
+	chat.MessageChan = make(chan gobot.Message)
+	go func() { close(chat.MessageChan) }()
 
-	// Install plugins
-	robot.Install(
+	// Install adapter and plugins
+	robot := gobot.New(
+		chat,
 		&ExamplePlugin{},
 	)
 
@@ -60,6 +64,6 @@ func Example() {
 	var plugin ExamplePlugin
 	if ok := robot.Plugin(&plugin); ok {
 		fmt.Println(plugin.Username)
-		// "beardroid"
+		// Output: beardroid
 	}
 }
