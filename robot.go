@@ -25,7 +25,7 @@ type Robot struct {
 
 // New creates an instance of a gobot.Robot and loads in the chat adapter
 // Typically you would install plugins before running the robot.
-func New(c Chat) *Robot {
+func New(c Chat, plugins ...Plugin) *Robot {
 	r := &Robot{
 		Chat:   c,
 		Brain:  newBrain(),
@@ -38,8 +38,9 @@ func New(c Chat) *Robot {
 	}
 	r.internals.Add(
 		c,
-		newServer(":"+os.Getenv("GOBOT_PORT")),
+		newServer(":"+os.Getenv("PORT")),
 	)
+	r.Install(plugins...)
 	return r
 }
 
