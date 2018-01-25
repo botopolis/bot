@@ -1,50 +1,15 @@
-# Slack Bot
+# Gobot
 
-The vision for this project is:
-
-Create a slack interface for hooking in multiple callbacks, an abstraction to
-make interacting with it easy
-
-Create an interface for configuration data:
-- Properties for slack users (JSON)
-- Properties for channels (JSON)
-- Ability to have indexed properties
-
-Add other integrations like GitHub and CI
-
-Add building blocks for "typical interactions", whatever those turn out to be
+A hubot clone in Go! Gobot is extendable with plugins and works with different
+chat services.
 
 ## Usage
 
-```go
-package main
+See [example_test.go](./example_test.go) or [the example app](./example/) for usage details.
 
-import (
-	"fmt"
-	"io/ioutil"
-	"strings"
+## Configuration
 
-	"github.com/berfarah/go/bot"
-)
+Most configuration of gobot happens through the addition of plugins.
 
-func main() {
-	var secret string
-	if contents, err := ioutil.ReadFile(".secret"); err != nil {
-		panic(err)
-	} else {
-		secret = strings.TrimSpace(string(contents))
-	}
-
-	r := bot.New(secret)
-	r.Hear(&bot.Hook{
-		Name:    "yoyo",
-		Matcher: bot.MatchText("heyy"),
-		Func: func(r *bot.Responder) error {
-			fmt.Println("running thing")
-			r.Send(bot.Message{Text: "ayy"})
-			return nil
-		},
-	})
-	r.Connect()
-}
-```
+The one exception is the server. You can set the port of the web server via the
+environment variable `PORT`.
