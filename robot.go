@@ -72,7 +72,6 @@ func (r *Robot) Run() {
 	r.plugins.Load(r)
 	r.queue.Forward(r, r.Chat.Messages())
 	r.stop()
-	os.Exit(0)
 }
 
 func (r *Robot) gracefulShutdown() {
