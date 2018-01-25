@@ -2,10 +2,15 @@ package gobot
 
 import (
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/op/go-logging"
 )
+
+const timeout = 15
 
 // Robot is the central structure for gobot
 type Robot struct {
@@ -61,12 +66,38 @@ func (r *Robot) Plugin(p Plugin) bool {
 // 4. Unloading all plugins in reverse order
 // 5. Unloading internals in reverse order
 func (r *Robot) Run() {
+	r.gracefulShutdown()
 	r.internals.Load(r)
 	r.plugins.Load(r)
 	r.queue.Forward(r, r.Chat.Messages())
+	r.stop()
+	os.Exit(0)
+}
+
+func (r *Robot) gracefulShutdown() {
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		done := make(chan bool)
+		go func() {
+			r.stop()
+			done <- true
+		}()
+		select {
+		case <-time.After(timeout * time.Second):
+			r.Logger.Info("Force quitting after %ds timeout", timeout)
+			os.Exit(1)
+		case <-done:
+			os.Exit(0)
+		}
+	}()
+}
+
+func (r *Robot) stop() {
+	r.Logger.Info("Shutting down...")
 	r.plugins.Unload(r)
 	r.internals.Unload(r)
-	os.Exit(0)
 }
 
 func (r *Robot) onMessage(t messageType, m Matcher, h hook) {
