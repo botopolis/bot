@@ -6,62 +6,76 @@ import (
 	"sync"
 )
 
+// Store is what the brain saves information in for longer term
+// recollection. Brain loads what it needs to in memory, but in
+// order to have persistence between runs, we can use a store.
 type Store interface {
+	// Get is called on Brain.Get() when the key doesn't exist in memory
 	Get(key string, object interface{}) error
+	// Set is always called on Brain.Set()
 	Set(key string, object interface{}) error
+	// Delete is always called on Brain.Delete()
 	Delete(key string) error
-	Save() error
 }
 
+// Brain is our data store. It defaults to just saving values in memory,
+// but can be given a Store via Brain.SetStore(), to which values are written.
+// Brain is threadsafe - and assumes the same of Store.
 type Brain struct {
-	Store Store
+	store Store
 	mu    sync.RWMutex
 	cache map[string]interface{}
 }
 
 type nullStore struct{}
+type nullStoreError struct{}
 
-func (n nullStore) Get(key string, object interface{}) error { return nil }
-func (n nullStore) Set(key string, object interface{}) error { return nil }
-func (n nullStore) Delete(key string) error                  { return nil }
-func (n nullStore) Save() error                              { return nil }
+func (e nullStoreError) Error() string { return "Nullstore contains no values" }
+
+func (n nullStore) Get(key string, object interface{}) error { return nullStoreError{} }
+func (n nullStore) Set(key string, object interface{}) error { return nullStoreError{} }
+func (n nullStore) Delete(key string) error                  { return nullStoreError{} }
 
 func newBrain() *Brain {
 	return &Brain{
-		Store: nullStore{},
+		store: nullStore{},
 		cache: make(map[string]interface{}),
 	}
 }
 
+// SetStore assigns a Store to Brain
+func (b *Brain) SetStore(s Store) { b.store = s }
+
+// Get retrieves a value from the store and sets it to the interface
+// It tries the memory store first, and falls back to Brain's Store
 func (b *Brain) Get(key string, i interface{}) error {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 	if d, ok := b.cache[key]; ok {
 		return copyInterface(d, i)
 	}
-	if err := b.Store.Get(key, i); err != nil {
+	if err := b.store.Get(key, i); err != nil {
 		return err
 	}
 	b.cache[key] = i
 	return nil
 }
 
+// Set assigns the given value in memory and to Brain's Store
 func (b *Brain) Set(key string, i interface{}) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.cache[key] = i
-	return b.Store.Set(key, i)
+	return b.store.Set(key, i)
 }
 
+// Delete removes the given key from memory and Brain's Store
 func (b *Brain) Delete(key string) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	delete(b.cache, key)
-	return b.Store.Delete(key)
+	return b.store.Delete(key)
 }
-
-func (b *Brain) Save() error      { return b.Store.Save() }
-func (b *Brain) SetStore(s Store) { b.Store = s }
 
 func ifaceValue(i interface{}) reflect.Value {
 	v := reflect.ValueOf(i)

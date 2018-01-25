@@ -1,6 +1,9 @@
 package gobot
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 // Chat is the interface for chat integrations
 type Chat interface {
@@ -12,26 +15,37 @@ type Chat interface {
 	Topic(Message) error
 }
 
+type messageType int
+type hook func(r Responder) error
+
+// Matcher determines whether the bot is triggered
+type Matcher func(r *Responder) bool
+
 const (
-	MessageEvent EventType = "chat:message"
-	RespondEvent EventType = "chat:respond"
-	EnterEvent   EventType = "chat:enter"
-	LeaveEvent   EventType = "chat:leave"
-	TopicEvent   EventType = "chat:topic"
+	// DefaultMessage assigns our message to robot.Hear()
+	DefaultMessage messageType = iota
+	// Response assigns our message to robot.Respond()
+	Response
+	// Enter assigns our message to robot.Enter()
+	Enter
+	// Leave assigns our message to robot.Leave()
+	Leave
+	// Topic assigns our message to robot.Topic()
+	Topic
 )
 
+// Message is our message wrapper
 type Message struct {
-	Event EventType
-
+	Type  messageType
 	User  string
 	Room  string
 	Text  string
 	Topic string
 
-	// The original message (ptr)
+	// Envelope is the original message that the bot is reacting to
 	Envelope interface{}
-	// Extra information
-	Extra interface{}
+	// Params is for adapter-specific parameters
+	Params interface{}
 }
 
 // Responder is the object one receives when listening for an event
@@ -51,62 +65,56 @@ func newResponder(r *Robot, m Message) *Responder {
 	}
 }
 
-func (r *Robot) Username() string { return r.Chat.Username() }
-
+// Send sends a message. It defaults to sending in the current room
 func (r *Responder) Send(m Message) error {
+	m.Envelope = r.Message
 	if m.Room == "" {
 		m.Room = r.Room
 	}
 	return r.Chat.Send(m)
 }
 
-func (r *Responder) Reply(m Message) error {
-	return r.Chat.Reply(m)
+// Reply responds to a message
+func (r *Responder) Reply(text string) error {
+	return r.Chat.Reply(Message{
+		Text:     text,
+		Room:     r.Room,
+		Envelope: r.Message,
+	})
 }
 
+// Topic changes the topic
 func (r *Responder) Topic(topic string) error {
-	msg := r.Message
-	msg.Topic = topic
-	return r.Chat.Topic(msg)
+	return r.Chat.Topic(Message{
+		Room:     r.Room,
+		Topic:    topic,
+		Envelope: r.Message,
+	})
 }
 
-type Hook struct {
-	Name  string
-	Func  func(r Responder) error
-	Match Matcher
-}
-
-type Matcher func(r *Responder) bool
-
-func (h *Hook) Run(r *Responder) error {
-	if h.Match != nil && !h.Match(r) {
-		return nil
-	}
-	if err := h.Func(*r); err != nil {
-		return err
-	}
-	return nil
-}
-
-func MatchUser(u string) Matcher {
+// User is a Matcher function that matches the User exactly
+func User(u string) Matcher {
 	return func(r *Responder) bool {
 		return r.Message.User == u
 	}
 }
 
-func MatchRoom(c string) Matcher {
+// Room is a Matcher function that matches the Room exactly
+func Room(c string) Matcher {
 	return func(r *Responder) bool {
 		return r.Message.Room == c
 	}
 }
 
-func MatchText(t string) Matcher {
+// Contains matches a subset of the message text
+func Contains(t string) Matcher {
 	return func(r *Responder) bool {
-		return r.Message.Text == t
+		return strings.Contains(r.Message.Text, t)
 	}
 }
 
-func MatchRegexp(expression string) Matcher {
+// Regexp matches the message text with a regular expression
+func Regexp(expression string) Matcher {
 	return func(r *Responder) bool {
 		reg, err := regexp.Compile(expression)
 		if err == nil && reg.MatchString(r.Message.Text) {

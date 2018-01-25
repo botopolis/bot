@@ -15,21 +15,29 @@ type unloader interface {
 }
 
 type pluginRegistry struct {
-	registry map[reflect.Type]Plugin
+	registry  map[reflect.Type]Plugin
+	loadOrder []reflect.Type
 }
 
 func newPluginRegistry() *pluginRegistry {
-	return &pluginRegistry{registry: make(map[reflect.Type]Plugin)}
+	return &pluginRegistry{
+		registry:  make(map[reflect.Type]Plugin),
+		loadOrder: make([]reflect.Type, 0),
+	}
 }
 
 func (reg *pluginRegistry) Add(plugins ...Plugin) {
-	var duplicate []string
+	var (
+		duplicate []string
+	)
 	for _, p := range plugins {
 		t := reflect.TypeOf(p)
 		if _, ok := reg.registry[t]; ok {
 			duplicate = append(duplicate, t.PkgPath()+":"+t.Name())
+			continue
 		}
 		reg.registry[t] = p
+		reg.loadOrder = append(reg.loadOrder, t)
 	}
 
 	if len(duplicate) > 0 {
@@ -40,28 +48,27 @@ func (reg *pluginRegistry) Add(plugins ...Plugin) {
 func (reg *pluginRegistry) Get(p Plugin) bool {
 	t := reflect.TypeOf(p)
 	if plugin, ok := reg.registry[t]; ok {
-		if err := copyInterface(plugin, p); err != nil {
-			return false
-		}
+		copyInterface(plugin, p)
 		return true
 	}
 	return false
 }
 
-func (reg *pluginRegistry) Load(r *Robot) int {
-	for _, p := range reg.registry {
-		p.Load(r)
-	}
-	return len(reg.registry)
-}
-
-func (reg *pluginRegistry) Unload(r *Robot) int {
-	var count int
-	for _, p := range reg.registry {
-		if u, ok := p.(unloader); ok {
-			u.Unload(r)
-			count++
+func (reg *pluginRegistry) Load(r *Robot) {
+	for _, t := range reg.loadOrder {
+		if p, ok := reg.registry[t]; ok {
+			p.Load(r)
 		}
 	}
-	return count
+}
+
+func (reg *pluginRegistry) Unload(r *Robot) {
+	for i := (len(reg.loadOrder) - 1); i >= 0; i-- {
+		t := reg.loadOrder[i]
+		if p, ok := reg.registry[t]; ok {
+			if u, ok := p.(unloader); ok {
+				u.Unload(r)
+			}
+		}
+	}
 }

@@ -7,16 +7,16 @@ import (
 )
 
 type TestPlugin struct {
-	Name  string
-	State string
+	Name   string
+	loaded map[string][]string
 }
 
-func (p *TestPlugin) Load(r *Robot)   { p.State = "Loaded" }
-func (p *TestPlugin) Unload(r *Robot) { p.State = "Unloaded" }
+func (p *TestPlugin) Load(r *Robot)   { p.loaded["loaded"] = append(p.loaded["loaded"], p.Name) }
+func (p *TestPlugin) Unload(r *Robot) { p.loaded["unloaded"] = append(p.loaded["unloaded"], p.Name) }
 
 func TestPluginAdd(t *testing.T) {
 	reg := newPluginRegistry()
-	in := TestPlugin{Name: "Test", State: "Loading"}
+	in := TestPlugin{Name: "Test"}
 	var out TestPlugin
 
 	ok := reg.Get(&out)
@@ -29,18 +29,41 @@ func TestPluginAdd(t *testing.T) {
 	assert.Equal(t, in, out, "Copies the registered plugin to the pointer")
 }
 
-func TestPluginLoad(t *testing.T) {
+func TestPluginAdd_duplicate(t *testing.T) {
 	reg := newPluginRegistry()
-	in := TestPlugin{Name: "Test", State: "Loading"}
-	var out TestPlugin
+	p1 := TestPlugin{Name: "Test"}
+	p2 := TestPlugin{Name: "Test"}
 
-	reg.Add(&in)
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Adding duplicate plugins should cause a panic")
+		}
+	}()
+	reg.Add(&p1, &p2)
+}
 
+func TestPluginLoad(t *testing.T) {
+	type TestPluginTwo struct{ TestPlugin }
+	out := make(map[string][]string)
+	reg := newPluginRegistry()
+	p1 := TestPlugin{loaded: out, Name: "one"}
+	p2 := TestPluginTwo{TestPlugin{loaded: out, Name: "two"}}
+
+	reg.Add(&p1, &p2)
 	reg.Load(&Robot{})
-	reg.Get(&out)
-	assert.Equal(t, "Loaded", out.State)
+
+	assert.Equal(
+		t,
+		[]string{"one", "two"},
+		out["loaded"],
+		"Should load the plugins in order",
+	)
 
 	reg.Unload(&Robot{})
-	reg.Get(&out)
-	assert.Equal(t, "Unloaded", out.State)
+	assert.Equal(
+		t,
+		[]string{"two", "one"},
+		out["unloaded"],
+		"Should unload the plugins in reverse order",
+	)
 }

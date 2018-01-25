@@ -5,8 +5,6 @@ import (
 	"sync"
 )
 
-type EventType string
-
 func newListener(capacity int, cbs ...func(*Responder)) listener {
 	var cb func(*Responder)
 	var ch chan Responder
@@ -42,37 +40,36 @@ func (l *listener) Dispatch(e *Responder) {
 	}
 }
 
-// ResponderQueue is responsible for holding listeners and
+// responderQueue is responsible for holding listeners and
 // dispatching events to them asynchronously
-type ResponderQueue struct {
+type responderQueue struct {
 	Capacity int
 
 	mu        sync.RWMutex
-	listeners map[EventType][]listener
+	listeners map[messageType][]listener
 }
 
-// NewResponderQueue creates an ResponderQueue
-func NewResponderQueue(capacity int) *ResponderQueue {
-	return &ResponderQueue{
+func newResponderQueue(capacity int) *responderQueue {
+	return &responderQueue{
 		Capacity:  capacity,
-		listeners: make(map[EventType][]listener),
+		listeners: make(map[messageType][]listener),
 	}
 }
 
-func (e *ResponderQueue) Forward(r *Robot, ch <-chan Message) {
+func (e *responderQueue) Forward(r *Robot, ch <-chan Message) {
 	for msg := range ch {
 		rs := newResponder(r, msg)
 		exp := regexp.MustCompile("^" + r.Username() + "\\s")
-		if msg.Event == MessageEvent && exp.MatchString(msg.Text) {
-			e.Emit(RespondEvent, rs)
+		if msg.Type == DefaultMessage && exp.MatchString(msg.Text) {
+			e.Emit(Response, rs)
 		}
 
-		e.Emit(msg.Event, rs)
+		e.Emit(msg.Type, rs)
 	}
 }
 
-// On binds a listener to the ResponderQueue
-func (e *ResponderQueue) On(on EventType, cbs ...func(*Responder)) <-chan Responder {
+// On binds a listener to the responderQueue
+func (e *responderQueue) On(on messageType, cbs ...func(*Responder)) <-chan Responder {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	l := newListener(e.Capacity, cbs...)
@@ -81,7 +78,7 @@ func (e *ResponderQueue) On(on EventType, cbs ...func(*Responder)) <-chan Respon
 }
 
 // Emit dispatches an event to corresponding listeners
-func (e *ResponderQueue) Emit(on EventType, rs *Responder) {
+func (e *responderQueue) Emit(on messageType, rs *Responder) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	if ls, ok := e.listeners[on]; ok {

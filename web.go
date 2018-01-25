@@ -6,24 +6,32 @@ import (
 	"time"
 )
 
-func (r *Robot) listenHTTP(address string) {
-	r.server = &http.Server{
+type server struct{ http.Server }
+
+func newServer(address string) *server {
+	if address == "" || address == ":" {
+		address = ":9090"
+	}
+	return &server{Server: http.Server{
 		Addr:         address,
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler:      r.Router,
-	}
+	}}
+}
+
+func (h *server) Load(r *Robot) {
+	h.Handler = r.Router
 	go func() {
-		if err := r.server.ListenAndServe(); err != nil {
+		if err := h.ListenAndServe(); err != nil {
 			r.Logger.Errorf("Server error: %s", err.Error())
 		}
 	}()
 }
 
-func (r *Robot) stopHTTP() {
+func (h *server) Unload(r *Robot) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 	r.Logger.Info("Shutting down web server")
-	r.server.Shutdown(ctx)
+	h.Shutdown(ctx)
 }

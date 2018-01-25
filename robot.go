@@ -1,7 +1,6 @@
 package gobot
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
@@ -19,9 +18,9 @@ type Robot struct {
 	// Logger with levels
 	Logger *logging.Logger
 
-	plugins *pluginRegistry
-	server  *http.Server
-	queue   *ResponderQueue
+	plugins   *pluginRegistry
+	internals *pluginRegistry
+	queue     *responderQueue
 }
 
 // New creates an instance of a gobot.Robot and loads in the chat adapter
@@ -33,10 +32,14 @@ func New(c Chat) *Robot {
 		Router: mux.NewRouter(),
 		Logger: newLogger(),
 
-		plugins: newPluginRegistry(),
-		queue:   NewResponderQueue(32),
+		plugins:   newPluginRegistry(),
+		internals: newPluginRegistry(),
+		queue:     newResponderQueue(10),
 	}
-	c.Load(r)
+	r.internals.Add(
+		c,
+		newServer(":"+os.Getenv("GOBOT_PORT")),
+	)
 	return r
 }
 
@@ -52,37 +55,56 @@ func (r *Robot) Plugin(p Plugin) bool {
 }
 
 // Run is responsible for:
-// 1. Launching the HTTP server
+// 1. Loading internals (chat, http)
 // 2. Loading all plugins
 // 3. Running RTM Slack until termination
-// 4. Unloading all plugins
-// 5. Shutting down the HTTP server
-func (r *Robot) Run(address string) {
-	r.listenHTTP(address)
+// 4. Unloading all plugins in reverse order
+// 5. Unloading internals in reverse order
+func (r *Robot) Run() {
+	r.internals.Load(r)
 	r.plugins.Load(r)
 	r.queue.Forward(r, r.Chat.Messages())
 	r.plugins.Unload(r)
-	r.stopHTTP()
+	r.internals.Unload(r)
 	os.Exit(0)
 }
 
-func (r *Robot) onMessage(et EventType, h *Hook) {
-	for rs := range r.queue.On(et) {
-		h.Run(&rs)
+func (r *Robot) onMessage(t messageType, m Matcher, h hook) {
+	if m == nil || h == nil {
+		return
+	}
+	for rs := range r.queue.On(t) {
+		if m(&rs) {
+			if err := h(rs); err != nil {
+				r.Logger.Errorf("Hook error: %s", err.Error())
+			}
+		}
 	}
 }
 
 // Hear is triggered on any message event.
-func (r *Robot) Hear(h *Hook) { go r.onMessage(MessageEvent, h) }
+func (r *Robot) Hear(m Matcher, h hook) { go r.onMessage(DefaultMessage, m, h) }
 
 // Respond is triggered on messages to the bot
-func (r *Robot) Respond(h *Hook) { go r.onMessage(RespondEvent, h) }
+func (r *Robot) Respond(m Matcher, h hook) { go r.onMessage(Response, m, h) }
 
 // Enter is triggered when someone enters a room
-func (r *Robot) Enter(h *Hook) { go r.onMessage(EnterEvent, h) }
+func (r *Robot) Enter(h hook) { go r.onMessage(Enter, nil, h) }
 
 // Leave is triggered when someone leaves a room
-func (r *Robot) Leave(h *Hook) { go r.onMessage(LeaveEvent, h) }
+func (r *Robot) Leave(h hook) { go r.onMessage(Leave, nil, h) }
 
 // Topic is triggered when someone changes the topic
-func (r *Robot) Topic(h *Hook) { go r.onMessage(TopicEvent, h) }
+func (r *Robot) Topic(h hook) { go r.onMessage(Topic, nil, h) }
+
+// Username provides the robot's username
+func (r *Robot) Username() string { return r.Chat.Username() }
+
+// Debug sets the log-level to debug
+func (r *Robot) Debug(debug bool) {
+	if debug {
+		stdout.SetLevel(logging.DEBUG, "")
+	} else {
+		stdout.SetLevel(logging.INFO, "")
+	}
+}

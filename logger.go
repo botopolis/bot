@@ -20,11 +20,3 @@ func newLogger() *logging.Logger {
 
 	return log
 }
-
-func (r *Robot) Debug(debug bool) {
-	if debug {
-		stdout.SetLevel(logging.DEBUG, "")
-	} else {
-		stdout.SetLevel(logging.INFO, "")
-	}
-}

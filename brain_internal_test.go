@@ -10,7 +10,6 @@ type testStore struct {
 	GetFunc    func(string, interface{}) error
 	SetFunc    func(string, interface{}) error
 	DeleteFunc func(string) error
-	SaveFunc   func() error
 }
 
 func newTestStore() *testStore {
@@ -18,13 +17,11 @@ func newTestStore() *testStore {
 		GetFunc:    func(s string, i interface{}) error { return nil },
 		SetFunc:    func(s string, i interface{}) error { return nil },
 		DeleteFunc: func(s string) error { return nil },
-		SaveFunc:   func() error { return nil },
 	}
 }
 func (s testStore) Get(k string, i interface{}) error { return s.GetFunc(k, i) }
 func (s testStore) Set(k string, i interface{}) error { return s.SetFunc(k, i) }
 func (s testStore) Delete(k string) error             { return s.DeleteFunc(k) }
-func (s testStore) Save() error                       { return s.SaveFunc() }
 
 func TestBrain(t *testing.T) {
 	assert := assert.New(t)
@@ -48,7 +45,7 @@ func TestBrainGet(t *testing.T) {
 	assert := assert.New(t)
 	store := newTestStore()
 	brain := newBrain()
-	brain.Store = store
+	brain.SetStore(store)
 
 	called := map[string]int{}
 	store.GetFunc = func(key string, i interface{}) error {
@@ -71,7 +68,7 @@ func TestBrainSet(t *testing.T) {
 	assert := assert.New(t)
 	store := newTestStore()
 	brain := newBrain()
-	brain.Store = store
+	brain.SetStore(store)
 
 	var called bool
 	store.SetFunc = func(key string, i interface{}) error {
@@ -87,7 +84,7 @@ func TestBrainDelete(t *testing.T) {
 	assert := assert.New(t)
 	store := newTestStore()
 	brain := newBrain()
-	brain.Store = store
+	brain.SetStore(store)
 
 	var called bool
 	store.DeleteFunc = func(key string) error {
@@ -97,20 +94,4 @@ func TestBrainDelete(t *testing.T) {
 
 	brain.Delete("key")
 	assert.True(called, "should also delete in the store")
-}
-
-func TestBrainSave(t *testing.T) {
-	assert := assert.New(t)
-	store := newTestStore()
-	brain := newBrain()
-	brain.Store = store
-
-	var called bool
-	store.SaveFunc = func() error {
-		called = true
-		return nil
-	}
-
-	brain.Save()
-	assert.True(called, "should call save on store")
 }
