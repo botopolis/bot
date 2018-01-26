@@ -67,7 +67,7 @@ func newResponder(r *Robot, m Message) *Responder {
 
 // Send sends a message. It defaults to sending in the current room
 func (r *Responder) Send(m Message) error {
-	m.Envelope = r.Message
+	m.Envelope = r.Envelope
 	if m.Room == "" {
 		m.Room = r.Room
 	}
@@ -79,7 +79,7 @@ func (r *Responder) Reply(text string) error {
 	return r.Chat.Reply(Message{
 		Text:     text,
 		Room:     r.Room,
-		Envelope: r.Message,
+		Envelope: r.Envelope,
 	})
 }
 
@@ -88,7 +88,7 @@ func (r *Responder) Topic(topic string) error {
 	return r.Chat.Topic(Message{
 		Room:     r.Room,
 		Topic:    topic,
-		Envelope: r.Message,
+		Envelope: r.Envelope,
 	})
 }
 

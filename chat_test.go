@@ -9,9 +9,10 @@ import (
 
 func TestResponderSend(t *testing.T) {
 	envelope := gobot.Message{Room: "general"}
+	message := gobot.Message{Text: "hi", Room: envelope.Room, Envelope: envelope}
 	chat := NewChat()
 	robot := gobot.Robot{Chat: chat}
-	res := gobot.Responder{Robot: &robot, Message: envelope}
+	res := gobot.Responder{Robot: &robot, Message: message}
 
 	chat.SendFunc = func(m gobot.Message) error {
 		assert.Equal(t, envelope, m.Envelope, "should receive the previous message as an envelope")
@@ -24,9 +25,10 @@ func TestResponderSend(t *testing.T) {
 
 func TestResponderReply(t *testing.T) {
 	envelope := gobot.Message{Room: "general"}
+	message := gobot.Message{Text: "hi", Envelope: envelope}
 	chat := NewChat()
 	robot := gobot.Robot{Chat: chat}
-	res := gobot.Responder{Robot: &robot, Message: envelope}
+	res := gobot.Responder{Robot: &robot, Message: message}
 
 	chat.ReplyFunc = func(m gobot.Message) error {
 		assert.Equal(t, envelope, m.Envelope, "should receive the previous message as an envelope")
@@ -38,9 +40,10 @@ func TestResponderReply(t *testing.T) {
 
 func TestResponderTopic(t *testing.T) {
 	envelope := gobot.Message{Room: "general"}
+	message := gobot.Message{Text: "hi", Envelope: envelope}
 	chat := NewChat()
 	robot := gobot.Robot{Chat: chat}
-	res := gobot.Responder{Robot: &robot, Message: envelope}
+	res := gobot.Responder{Robot: &robot, Message: message}
 
 	chat.TopicFunc = func(m gobot.Message) error {
 		assert.Equal(t, envelope, m.Envelope, "should receive the previous message as an envelope")
