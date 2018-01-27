@@ -25,7 +25,7 @@ func (s testStore) Delete(k string) error             { return s.DeleteFunc(k) }
 
 func TestBrain(t *testing.T) {
 	assert := assert.New(t)
-	brain := newBrain()
+	brain := NewBrain()
 
 	key := "foo"
 	value := "bar"
@@ -44,7 +44,7 @@ func TestBrain(t *testing.T) {
 func TestBrainGet(t *testing.T) {
 	assert := assert.New(t)
 	store := newTestStore()
-	brain := newBrain()
+	brain := NewBrain()
 	brain.SetStore(store)
 
 	called := map[string]int{}
@@ -67,7 +67,7 @@ func TestBrainGet(t *testing.T) {
 func TestBrainSet(t *testing.T) {
 	assert := assert.New(t)
 	store := newTestStore()
-	brain := newBrain()
+	brain := NewBrain()
 	brain.SetStore(store)
 
 	var called bool
@@ -83,7 +83,7 @@ func TestBrainSet(t *testing.T) {
 func TestBrainDelete(t *testing.T) {
 	assert := assert.New(t)
 	store := newTestStore()
-	brain := newBrain()
+	brain := NewBrain()
 	brain.SetStore(store)
 
 	var called bool

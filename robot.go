@@ -33,7 +33,7 @@ type Robot struct {
 func New(c Chat, plugins ...Plugin) *Robot {
 	r := &Robot{
 		Chat:   c,
-		Brain:  newBrain(),
+		Brain:  NewBrain(),
 		Router: mux.NewRouter(),
 		Logger: newLogger(),
 

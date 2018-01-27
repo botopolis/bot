@@ -36,7 +36,8 @@ func (n nullStore) Get(key string, object interface{}) error { return nullStoreE
 func (n nullStore) Set(key string, object interface{}) error { return nullStoreError{} }
 func (n nullStore) Delete(key string) error                  { return nullStoreError{} }
 
-func newBrain() *Brain {
+// NewBrain creates a Brain
+func NewBrain() *Brain {
 	return &Brain{
 		store: nullStore{},
 		cache: make(map[string]interface{}),
