@@ -3,12 +3,12 @@ package main
 import (
 	"net/http"
 
-	"github.com/berfarah/gobot"
+	"github.com/botopolis/bot"
 )
 
 type webhook struct{}
 
-func (w webhook) Load(r *gobot.Robot) {
+func (w webhook) Load(r *bot.Robot) {
 	r.Router.HandleFunc(
 		"/webhook/name",
 		func(w http.ResponseWriter, r *http.Request) {

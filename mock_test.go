@@ -1,43 +1,43 @@
-package gobot_test
+package bot_test
 
-import "github.com/berfarah/gobot"
+import "github.com/botopolis/bot"
 
 type Plugin struct {
-	LoadFunc   func(r *gobot.Robot)
-	UnloadFunc func(r *gobot.Robot)
+	LoadFunc   func(r *bot.Robot)
+	UnloadFunc func(r *bot.Robot)
 }
 
 func NewPlugin() *Plugin {
 	return &Plugin{
-		LoadFunc:   func(r *gobot.Robot) {},
-		UnloadFunc: func(r *gobot.Robot) {},
+		LoadFunc:   func(r *bot.Robot) {},
+		UnloadFunc: func(r *bot.Robot) {},
 	}
 }
-func (p *Plugin) Load(r *gobot.Robot)   { p.LoadFunc(r) }
-func (p *Plugin) Unload(r *gobot.Robot) { p.UnloadFunc(r) }
+func (p *Plugin) Load(r *bot.Robot)   { p.LoadFunc(r) }
+func (p *Plugin) Unload(r *bot.Robot) { p.UnloadFunc(r) }
 
 type Chat struct {
 	*Plugin
 	Name        string
-	MessageChan chan gobot.Message
-	SendFunc    func(gobot.Message) error
-	ReplyFunc   func(gobot.Message) error
-	DirectFunc  func(gobot.Message) error
-	TopicFunc   func(gobot.Message) error
+	MessageChan chan bot.Message
+	SendFunc    func(bot.Message) error
+	ReplyFunc   func(bot.Message) error
+	DirectFunc  func(bot.Message) error
+	TopicFunc   func(bot.Message) error
 }
 
 func NewChat() *Chat {
 	return &Chat{
 		Plugin:     NewPlugin(),
-		SendFunc:   func(gobot.Message) error { return nil },
-		ReplyFunc:  func(gobot.Message) error { return nil },
-		DirectFunc: func(gobot.Message) error { return nil },
-		TopicFunc:  func(gobot.Message) error { return nil },
+		SendFunc:   func(bot.Message) error { return nil },
+		ReplyFunc:  func(bot.Message) error { return nil },
+		DirectFunc: func(bot.Message) error { return nil },
+		TopicFunc:  func(bot.Message) error { return nil },
 	}
 }
 func (a *Chat) Username() string               { return a.Name }
-func (a *Chat) Messages() <-chan gobot.Message { return a.MessageChan }
-func (a *Chat) Send(m gobot.Message) error     { return a.SendFunc(m) }
-func (a *Chat) Reply(m gobot.Message) error    { return a.ReplyFunc(m) }
-func (a *Chat) Direct(m gobot.Message) error   { return a.DirectFunc(m) }
-func (a *Chat) Topic(m gobot.Message) error    { return a.TopicFunc(m) }
+func (a *Chat) Messages() <-chan bot.Message { return a.MessageChan }
+func (a *Chat) Send(m bot.Message) error     { return a.SendFunc(m) }
+func (a *Chat) Reply(m bot.Message) error    { return a.ReplyFunc(m) }
+func (a *Chat) Direct(m bot.Message) error   { return a.DirectFunc(m) }
+func (a *Chat) Topic(m bot.Message) error    { return a.TopicFunc(m) }

@@ -1,44 +1,44 @@
-package gobot_test
+package bot_test
 
 import (
 	"fmt"
 	"net/http"
 
-	"github.com/berfarah/gobot"
+	"github.com/botopolis/bot"
 )
 
 type ExamplePlugin struct {
 	Username string
 }
 
-func (p *ExamplePlugin) Load(r *gobot.Robot) { p.Username = "beardroid" }
+func (p *ExamplePlugin) Load(r *bot.Robot) { p.Username = "beardroid" }
 
 func Example() {
 	// Ignore this - just example setup
 	chat := NewChat()
-	chat.MessageChan = make(chan gobot.Message)
+	chat.MessageChan = make(chan bot.Message)
 	go func() { close(chat.MessageChan) }()
 
 	// Install adapter and plugins
-	robot := gobot.New(
+	robot := bot.New(
 		chat,
 		&ExamplePlugin{},
 	)
 
 	// Respond to any message
-	robot.Hear(gobot.Regexp("welcome (\\w*)"), func(r gobot.Responder) error {
-		return r.Send(gobot.Message{
+	robot.Hear(bot.Regexp("welcome (\\w*)"), func(r bot.Responder) error {
+		return r.Send(bot.Message{
 			Text: "All hail " + r.Match[1] + ", our new overlord",
 		})
 	})
 
 	// Respond to messages that are either DMed to the bot or start with the bot's name
-	robot.Respond(gobot.Regexp("topic (.*)"), func(r gobot.Responder) error {
+	robot.Respond(bot.Regexp("topic (.*)"), func(r bot.Responder) error {
 		return r.Topic(r.Match[1])
 	})
 
 	// Track when topics are updated
-	robot.Topic(func(r gobot.Responder) error {
+	robot.Topic(func(r bot.Responder) error {
 		if r.Room == "announcements" {
 			var announcements []string
 			r.Brain.Get("announcements", &announcements)
@@ -49,8 +49,8 @@ func Example() {
 	})
 
 	// Track the comings and goings of people
-	robot.Enter(func(r gobot.Responder) error { return nil })
-	robot.Leave(func(r gobot.Responder) error { return nil })
+	robot.Enter(func(r bot.Responder) error { return nil })
+	robot.Leave(func(r bot.Responder) error { return nil })
 
 	// Create server endpoints
 	robot.Router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

@@ -1,4 +1,4 @@
-package gobot
+package bot
 
 import (
 	"os"
@@ -12,7 +12,7 @@ import (
 
 const timeout = 15
 
-// Robot is the central structure for gobot
+// Robot is the central structure for bot
 type Robot struct {
 	// Chat adapter
 	Chat Chat
@@ -28,7 +28,7 @@ type Robot struct {
 	queue     *responderQueue
 }
 
-// New creates an instance of a gobot.Robot and loads in the chat adapter
+// New creates an instance of a bot.Robot and loads in the chat adapter
 // Typically you would install plugins before running the robot.
 func New(c Chat, plugins ...Plugin) *Robot {
 	r := &Robot{
