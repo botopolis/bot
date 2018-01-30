@@ -1,8 +1,4 @@
 [[constraint]]
-  name = "github.com/nlopes/slack"
-  revision = "d86785d50d4be9c2e11cfbb0ed601f5dcb22899c"
-
-[[constraint]]
   name = "github.com/op/go-logging"
 
 [[constraint]]
