@@ -15,6 +15,7 @@ func (c testChat) Messages() <-chan Message { return make(chan Message) }
 func (c testChat) Send(m Message) error     { return nil }
 func (c testChat) Reply(m Message) error    { return nil }
 func (c testChat) Topic(m Message) error    { return nil }
+func (c testChat) Direct(m Message) error   { return nil }
 
 func TestResponderQueueCallback(t *testing.T) {
 	rq := newResponderQueue(1)

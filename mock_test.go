@@ -22,19 +22,22 @@ type Chat struct {
 	MessageChan chan gobot.Message
 	SendFunc    func(gobot.Message) error
 	ReplyFunc   func(gobot.Message) error
+	DirectFunc  func(gobot.Message) error
 	TopicFunc   func(gobot.Message) error
 }
 
 func NewChat() *Chat {
 	return &Chat{
-		Plugin:    NewPlugin(),
-		SendFunc:  func(gobot.Message) error { return nil },
-		ReplyFunc: func(gobot.Message) error { return nil },
-		TopicFunc: func(gobot.Message) error { return nil },
+		Plugin:     NewPlugin(),
+		SendFunc:   func(gobot.Message) error { return nil },
+		ReplyFunc:  func(gobot.Message) error { return nil },
+		DirectFunc: func(gobot.Message) error { return nil },
+		TopicFunc:  func(gobot.Message) error { return nil },
 	}
 }
 func (a *Chat) Username() string               { return a.Name }
 func (a *Chat) Messages() <-chan gobot.Message { return a.MessageChan }
 func (a *Chat) Send(m gobot.Message) error     { return a.SendFunc(m) }
 func (a *Chat) Reply(m gobot.Message) error    { return a.ReplyFunc(m) }
+func (a *Chat) Direct(m gobot.Message) error   { return a.DirectFunc(m) }
 func (a *Chat) Topic(m gobot.Message) error    { return a.TopicFunc(m) }

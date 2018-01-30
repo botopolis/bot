@@ -13,6 +13,7 @@ type Chat interface {
 	Send(Message) error
 	Reply(Message) error
 	Topic(Message) error
+	Direct(Message) error
 }
 
 type messageType int
@@ -77,6 +78,15 @@ func (r *Responder) Send(m Message) error {
 // Reply responds to a message
 func (r *Responder) Reply(text string) error {
 	return r.Chat.Reply(Message{
+		Text:     text,
+		Room:     r.Room,
+		Envelope: r.Envelope,
+	})
+}
+
+// Direct responds via direct message to the user
+func (r *Responder) Direct(text string) error {
+	return r.Chat.Direct(Message{
 		Text:     text,
 		Room:     r.Room,
 		Envelope: r.Envelope,
