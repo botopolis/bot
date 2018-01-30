@@ -45,19 +45,18 @@ func New(c Chat, plugins ...Plugin) *Robot {
 		c,
 		newServer(":"+os.Getenv("PORT")),
 	)
-	r.Install(plugins...)
-	return r
-}
-
-// Install runs plugins on Robot
-func (r *Robot) Install(plugins ...Plugin) {
 	r.plugins.Add(plugins...)
+	return r
 }
 
 // Plugin allows you to fetch a loaded plugin for direct use
 // See ExamplePluginUsage
 func (r *Robot) Plugin(p Plugin) bool {
-	return r.plugins.Get(p)
+	ok := r.plugins.Get(p)
+	if !ok {
+		return r.internals.Get(p)
+	}
+	return ok
 }
 
 // Run is responsible for:
