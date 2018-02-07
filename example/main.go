@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/botopolis/bot"
-	"github.com/botopolis/slack"
 	"github.com/botopolis/redis"
+	"github.com/botopolis/slack"
 )
 
 func main() {
