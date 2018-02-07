@@ -35,7 +35,7 @@ func NewChat() *Chat {
 		TopicFunc:  func(bot.Message) error { return nil },
 	}
 }
-func (a *Chat) Username() string               { return a.Name }
+func (a *Chat) Username() string             { return a.Name }
 func (a *Chat) Messages() <-chan bot.Message { return a.MessageChan }
 func (a *Chat) Send(m bot.Message) error     { return a.SendFunc(m) }
 func (a *Chat) Reply(m bot.Message) error    { return a.ReplyFunc(m) }
