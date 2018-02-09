@@ -4,20 +4,20 @@
 [[projects]]
   name = "github.com/botopolis/bot"
   packages = ["."]
-  revision = "efb358abb4e58452f303dacdab04768982c1dc7b"
-  version = "v0.2.0"
+  revision = "2afbc53f6b8f3324cc5b8f37627a48e0db881ad3"
+  version = "v0.3.0"
 
 [[projects]]
   name = "github.com/botopolis/redis"
   packages = ["."]
-  revision = "610fa0ece516345820fbce1278d1ecf724da6af6"
-  version = "v0.2.0"
+  revision = "28cb6e23c5a67d6a203fc68edd22ac3cb1f68063"
+  version = "v0.2.1"
 
 [[projects]]
   name = "github.com/botopolis/slack"
   packages = ["."]
-  revision = "3a404b1ac554e5fb52dd23cd5a2639e9842b7511"
-  version = "v0.2.1"
+  revision = "379a29ffcd90d2b76f6d3670db7957cb64ffd0c8"
+  version = "v0.2.2"
 
 [[projects]]
   name = "github.com/go-redis/cache"
@@ -81,6 +81,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "50645efeb18f52ba655d12e3ea2d069c1fcd9ffd76074e88aed58a85dc4dd394"
+  inputs-digest = "0311d5cb9b0fda937bd0a766bec83c8da502489698944574c9931e4d83d1bde0"
   solver-name = "gps-cdcl"
   solver-version = 1
