@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/botopolis/bot"
+	"github.com/botopolis/bot/mock"
 )
 
 type ExamplePlugin struct {
@@ -15,7 +16,7 @@ func (p *ExamplePlugin) Load(r *bot.Robot) { p.Username = "beardroid" }
 
 func Example() {
 	// Ignore this - just example setup
-	chat := NewChat()
+	chat := mock.NewChat()
 	chat.MessageChan = make(chan bot.Message)
 	go func() { close(chat.MessageChan) }()
 

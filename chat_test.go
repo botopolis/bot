@@ -4,13 +4,14 @@ import (
 	"testing"
 
 	"github.com/botopolis/bot"
+	"github.com/botopolis/bot/mock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestResponderSend(t *testing.T) {
 	envelope := bot.Message{Room: "general"}
 	message := bot.Message{Text: "hi", Room: envelope.Room, Envelope: envelope}
-	chat := NewChat()
+	chat := mock.NewChat()
 	robot := bot.Robot{Chat: chat}
 	res := bot.Responder{Robot: &robot, Message: message}
 
@@ -26,7 +27,7 @@ func TestResponderSend(t *testing.T) {
 func TestResponderReply(t *testing.T) {
 	envelope := bot.Message{Room: "general"}
 	message := bot.Message{Text: "hi", Envelope: envelope}
-	chat := NewChat()
+	chat := mock.NewChat()
 	robot := bot.Robot{Chat: chat}
 	res := bot.Responder{Robot: &robot, Message: message}
 
@@ -41,7 +42,7 @@ func TestResponderReply(t *testing.T) {
 func TestResponderTopic(t *testing.T) {
 	envelope := bot.Message{Room: "general"}
 	message := bot.Message{Text: "hi", Envelope: envelope}
-	chat := NewChat()
+	chat := mock.NewChat()
 	robot := bot.Robot{Chat: chat}
 	res := bot.Responder{Robot: &robot, Message: message}
 

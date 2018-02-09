@@ -1,31 +1,16 @@
-package bot
+package bot_test
 
 import (
 	"testing"
 
+	"github.com/botopolis/bot"
+	"github.com/botopolis/bot/mock"
 	"github.com/stretchr/testify/assert"
 )
 
-type testStore struct {
-	GetFunc    func(string, interface{}) error
-	SetFunc    func(string, interface{}) error
-	DeleteFunc func(string) error
-}
-
-func newTestStore() *testStore {
-	return &testStore{
-		GetFunc:    func(s string, i interface{}) error { return nil },
-		SetFunc:    func(s string, i interface{}) error { return nil },
-		DeleteFunc: func(s string) error { return nil },
-	}
-}
-func (s testStore) Get(k string, i interface{}) error { return s.GetFunc(k, i) }
-func (s testStore) Set(k string, i interface{}) error { return s.SetFunc(k, i) }
-func (s testStore) Delete(k string) error             { return s.DeleteFunc(k) }
-
 func TestBrain(t *testing.T) {
 	assert := assert.New(t)
-	brain := NewBrain()
+	brain := bot.NewBrain()
 
 	key := "foo"
 	value := "bar"
@@ -43,8 +28,8 @@ func TestBrain(t *testing.T) {
 
 func TestBrainGet(t *testing.T) {
 	assert := assert.New(t)
-	store := newTestStore()
-	brain := NewBrain()
+	store := mock.NewStore()
+	brain := bot.NewBrain()
 	brain.SetStore(store)
 
 	called := map[string]int{}
@@ -66,8 +51,8 @@ func TestBrainGet(t *testing.T) {
 
 func TestBrainSet(t *testing.T) {
 	assert := assert.New(t)
-	store := newTestStore()
-	brain := NewBrain()
+	store := mock.NewStore()
+	brain := bot.NewBrain()
 	brain.SetStore(store)
 
 	var called bool
@@ -82,8 +67,8 @@ func TestBrainSet(t *testing.T) {
 
 func TestBrainDelete(t *testing.T) {
 	assert := assert.New(t)
-	store := newTestStore()
-	brain := NewBrain()
+	store := mock.NewStore()
+	brain := bot.NewBrain()
 	brain.SetStore(store)
 
 	var called bool
