@@ -7,7 +7,7 @@ chat services.
 
 ## Usage
 
-See [example_test.go](./example_test.go) or [the example app](./example/) for usage details.
+See [example_test.go](./example_test.go) for usage details.
 
 ### Example program
 
