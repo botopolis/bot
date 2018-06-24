@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/op/go-logging"
 )
 
 const timeout = 15
@@ -21,7 +20,7 @@ type Robot struct {
 	// HTTP Router
 	Router *mux.Router
 	// Logger with levels
-	Logger *logging.Logger
+	Logger Logger
 
 	plugins   *pluginRegistry
 	internals *pluginRegistry
@@ -35,7 +34,7 @@ func New(c Chat, plugins ...Plugin) *Robot {
 		Chat:   c,
 		Brain:  NewBrain(),
 		Router: mux.NewRouter(),
-		Logger: newLogger(),
+		Logger: defaultLogger,
 
 		plugins:   newPluginRegistry(),
 		internals: newPluginRegistry(),
@@ -85,7 +84,7 @@ func (r *Robot) gracefulShutdown() {
 		}()
 		select {
 		case <-time.After(timeout * time.Second):
-			r.Logger.Info("Force quitting after %ds timeout", timeout)
+			r.Logger.Infof("Force quitting after %ds timeout", timeout)
 			os.Exit(1)
 		case <-done:
 			os.Exit(0)
@@ -129,12 +128,3 @@ func (r *Robot) Topic(h hook) { go r.onMessage(Topic, nil, h) }
 
 // Username provides the robot's username
 func (r *Robot) Username() string { return r.Chat.Username() }
-
-// Debug sets the log-level to debug
-func (r *Robot) Debug(debug bool) {
-	if debug {
-		stdout.SetLevel(logging.DEBUG, "")
-	} else {
-		stdout.SetLevel(logging.INFO, "")
-	}
-}

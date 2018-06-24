@@ -21,10 +21,8 @@ func Example() {
 	go func() { close(chat.MessageChan) }()
 
 	// Install adapter and plugins
-	robot := bot.New(
-		chat,
-		&ExamplePlugin{},
-	)
+	robot := bot.New(chat, &ExamplePlugin{})
+	robot.Logger = mock.NewLogger()
 
 	// Respond to any message
 	robot.Hear(bot.Regexp("welcome (\\w*)"), func(r bot.Responder) error {
