@@ -175,13 +175,13 @@ You can set the server port with an environment variable `PORT`:
 PORT=4567 ./botopolis
 ```
 
-### Debug logging
+### Custom logging
 
-You can set debug logging via method call:
+You can set up your own logger as long as it satisfies the
+[Logger](https://godoc.org/github.com/botopolis/bot#Logger) interface.
 
 ```go
-r := bot.New(mock.NewChat())
-r.Debug(true)
-r.Run()
-// Runs with debug logging
+robot := bot.New(mychat.Plugin{})
+robot.Logger = MyCustomLogger{}
+robot.Run()
 ```

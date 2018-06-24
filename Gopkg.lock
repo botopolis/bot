@@ -20,12 +20,6 @@
   version = "v1.6.1"
 
 [[projects]]
-  name = "github.com/op/go-logging"
-  packages = ["."]
-  revision = "b2cb9fa56473e98db8caba80237377e83fe44db5"
-  version = "v1"
-
-[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
@@ -40,6 +34,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "60e3c51dec4bcf9ea9a6784b435bfee94a78e99826aa57416d25b1c599872594"
+  inputs-digest = "5b0135006424a2e27ff802b5a49094ef75e2324bb377a51081cec6ea7f52f834"
   solver-name = "gps-cdcl"
   solver-version = 1

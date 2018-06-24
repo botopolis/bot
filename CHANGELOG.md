@@ -1,0 +1,20 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## [0.4.0](https://github.com/botopolis/bot/compare/v0.3.0...v0.4.0) - 2018-06-24
+
+### Added
+
+- Mock that satisfies `bot.Logger` interface
+
+### Changed
+
+- `Robot.Logger` is now an interface.
+
+### Removed
+
+- `Robot.Debug()` has been removed. As you now have full control over the logger, you can set your logger's log level without involving `bot.Robot`.
