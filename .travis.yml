@@ -1,7 +1,7 @@
 language: go
 
 go:
-  - 1.9
+  - "1.10"
   - master
 
 env:
@@ -31,7 +31,7 @@ before_script:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 
-script: go test -v -race -coverprofile=c.out .
+script: go test -v -race -coverprofile=c.out ./...
 
 after_script:
   - ./cc-test-reporter after-build -t gocov --exit-code $TRAVIS_TEST_RESULT
