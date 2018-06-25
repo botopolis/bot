@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"sync"
@@ -27,14 +28,13 @@ type Brain struct {
 	cache map[string]interface{}
 }
 
+var errNullStore = errors.New("Nullstore contains no values")
+
 type nullStore struct{}
-type nullStoreError struct{}
 
-func (e nullStoreError) Error() string { return "Nullstore contains no values" }
-
-func (n nullStore) Get(key string, object interface{}) error { return nullStoreError{} }
-func (n nullStore) Set(key string, object interface{}) error { return nullStoreError{} }
-func (n nullStore) Delete(key string) error                  { return nullStoreError{} }
+func (n nullStore) Get(string, interface{}) error { return errNullStore }
+func (n nullStore) Set(string, interface{}) error { return errNullStore }
+func (n nullStore) Delete(string) error           { return errNullStore }
 
 // NewBrain creates a Brain
 func NewBrain() *Brain {
