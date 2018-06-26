@@ -80,3 +80,20 @@ func TestBrainDelete(t *testing.T) {
 	brain.Delete("key")
 	assert.True(called, "should also delete in the store")
 }
+
+func TestBrainKeys(t *testing.T) {
+	assert := assert.New(t)
+	brain := bot.NewBrain()
+
+	var noKeys []string
+	assert.Equal(noKeys, brain.Keys(), "should not have any keys")
+
+	brain.Set("A. key", nil)
+	assert.Equal([]string{"A. key"}, brain.Keys(), "should have one key")
+
+	brain.Set("C. another", nil)
+	assert.Equal([]string{"A. key", "C. another"}, brain.Keys(), "should have two keys")
+
+	brain.Set("B. alphabetized", nil)
+	assert.Equal([]string{"A. key", "B. alphabetized", "C. another"}, brain.Keys(), "should alphabetize keys")
+}
