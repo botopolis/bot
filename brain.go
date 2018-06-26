@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 	"sync"
 )
 
@@ -76,6 +77,18 @@ func (b *Brain) Delete(key string) error {
 	defer b.mu.Unlock()
 	delete(b.cache, key)
 	return b.store.Delete(key)
+}
+
+// Keys returns all the keys in the Brain's cache.
+func (b *Brain) Keys() []string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	var keys []string
+	for k := range b.cache {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func ifaceValue(i interface{}) reflect.Value {
