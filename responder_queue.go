@@ -59,7 +59,7 @@ func newResponderQueue(capacity int) *responderQueue {
 func (e *responderQueue) Forward(r *Robot, ch <-chan Message) {
 	for msg := range ch {
 		rs := newResponder(r, msg)
-		exp := regexp.MustCompile("^" + r.Username() + "\\s")
+		exp := regexp.MustCompile("^@?" + r.Username() + "\\s")
 		if msg.Type == DefaultMessage && exp.MatchString(msg.Text) {
 			e.Emit(Response, rs)
 		}
