@@ -1,8 +1,11 @@
 package bot
 
 import (
+	"fmt"
 	"regexp"
 	"sync"
+
+	"github.com/nlopes/slack"
 )
 
 func newListener(capacity int, cbs ...func(*Responder)) listener {
@@ -59,7 +62,18 @@ func newResponderQueue(capacity int) *responderQueue {
 func (e *responderQueue) Forward(r *Robot, ch <-chan Message) {
 	for msg := range ch {
 		rs := newResponder(r, msg)
+
+		isDirectMessage := false
+		slackMessage, ok := msg.Envelope.(slack.Message)
+		if ok {
+			isDirectMessage = slackMessage.Channel[0] == 'D'
+		}
+
 		exp := regexp.MustCompile("^@?" + r.Username() + "\\s")
+		if msg.Type == DefaultMessage && isDirectMessage && !exp.MatchString(msg.Text) {
+			msg.Text = fmt.Sprintf("@%s %s", r.Username(), msg.Text)
+		}
+
 		if msg.Type == DefaultMessage && exp.MatchString(msg.Text) {
 			e.Emit(Response, rs)
 		}
