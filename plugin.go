@@ -54,6 +54,14 @@ func (reg *pluginRegistry) Get(p Plugin) bool {
 	return false
 }
 
+func (reg *pluginRegistry) List() []Plugin {
+	plugins := make([]Plugin, 0, len(reg.registry))
+	for _, i := range reg.loadOrder {
+		plugins = append(plugins, reg.registry[i])
+	}
+	return plugins
+}
+
 func (reg *pluginRegistry) Load(r *Robot) {
 	for _, t := range reg.loadOrder {
 		if p, ok := reg.registry[t]; ok {
