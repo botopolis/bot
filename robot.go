@@ -58,6 +58,11 @@ func (r *Robot) Plugin(p Plugin) bool {
 	return ok
 }
 
+// ListPlugins returns a slice of all loaded plugins.
+func (r *Robot) ListPlugins() []Plugin {
+	return append(r.internals.List(), r.plugins.List()...)
+}
+
 // Run is responsible for:
 // 1. Loading internals (chat, http)
 // 2. Loading all plugins
