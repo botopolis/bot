@@ -67,3 +67,13 @@ func TestPluginLoad(t *testing.T) {
 		"Should unload the plugins in reverse order",
 	)
 }
+
+func TestPluginList(t *testing.T) {
+	type TestPluginTwo struct{ TestPlugin }
+	reg := newPluginRegistry()
+	p1 := TestPlugin{}
+	p2 := TestPluginTwo{}
+
+	reg.Add(&p1, &p2)
+	assert.Equal(t, []Plugin{&p1, &p2}, reg.List())
+}
