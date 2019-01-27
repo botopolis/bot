@@ -1,6 +1,6 @@
 # botopolis
 
-[![GoDoc](https://godoc.org/github.com/botopolis/bot?status.svg)](https://godoc.org/github.com/botopolis/bot) [![Build Status](https://travis-ci.org/botopolis/bot.svg?branch=master)](https://travis-ci.org/botopolis/bot) [![Test Coverage](https://api.codeclimate.com/v1/badges/b7acc61121363e7405a3/test_coverage)](https://codeclimate.com/github/botopolis/bot/test_coverage)
+[![GoDoc](https://godoc.org/github.com/botopolis/bot?status.svg)](https://godoc.org/github.com/botopolis/bot) [![Build Status](https://circleci.com/gh/botopolis/bot.svg?style=svg)](https://circleci.com/gh/botopolis/bot) [![Test Coverage](https://api.codeclimate.com/v1/badges/b7acc61121363e7405a3/test_coverage)](https://codeclimate.com/github/botopolis/bot/test_coverage)
 
 A hubot clone in Go! botopolis is extendable with plugins and works with different
 chat services.
