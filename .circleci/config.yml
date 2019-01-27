@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:latest
+    working_directory: /go/src/github.com/botopolis/bot
+    steps:
+      - checkout
+      - run: mkdir -p /tmp/junit-reports
+
+      - run:
+          name: Install vendor dependencies
+          command: dep ensure
+      - run:
+          name: Install Code Climate test-reporter
+          command: |
+            # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
+          name: Run tests
+          command: |
+            # Notify Code Climate of a pending test
+            ./cc-test-reporter before-build
+            # Run tests
+            gotestsum --junitfile /tmp/junit-reports/go.xml -- -race -timeout 30s -coverprofile=c.out ./...
+            # Upload test report to Code Climate
+            ./cc-test-reporter after-build -t gocov --exit-code $?
+
+      # Upload results
+      - store_test_results:
+                path: /tmp/junit-reports
