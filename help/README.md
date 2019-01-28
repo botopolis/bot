@@ -8,6 +8,11 @@ Output about your botopolis commands.
 
 See [example_test.go](./example_test.go) for usage details.
 
+In order to show what commands your plugin implements, simply implement the
+[`help.Provider`](https://godoc.org/github.com/botopolis/bot/help#Provider)
+interface (`Help() []help.Text`). `help.Plugin` lists the help text for all
+installed plugins.
+
 ### Example output
 
 ```

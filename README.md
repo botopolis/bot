@@ -158,6 +158,7 @@ func (p ExamplePlugin) Unload(r *bot.Robot) {
 
 Here are a couple examples of working plugins:
 
+- [https://github.com/botopolis/bot/help](https://github.com/botopolis/bot/tree/master/help)
 - https://github.com/botopolis/oauth2
 - https://github.com/botopolis/redis (implements `Unload`)
 
