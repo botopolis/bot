@@ -7,10 +7,6 @@ jobs:
     steps:
       - checkout
       - run: mkdir -p /tmp/junit-reports
-
-      - run:
-          name: Install vendor dependencies
-          command: dep ensure
       - run:
           name: Install Code Climate test-reporter
           command: |
