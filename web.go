@@ -33,5 +33,7 @@ func (h *server) Unload(r *Robot) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 	r.Logger.Info("Shutting down web server")
-	h.Shutdown(ctx)
+	if err := h.Shutdown(ctx); err != nil {
+		r.Logger.Errorf("Error shutting down: %s\n", err.Error())
+	}
 }

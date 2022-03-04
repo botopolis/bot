@@ -48,7 +48,9 @@ func (reg *pluginRegistry) Add(plugins ...Plugin) {
 func (reg *pluginRegistry) Get(p Plugin) bool {
 	t := reflect.TypeOf(p)
 	if plugin, ok := reg.registry[t]; ok {
-		copyInterface(plugin, p)
+		if err := copyInterface(plugin, p); err != nil {
+			return false
+		}
 		return true
 	}
 	return false
