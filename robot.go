@@ -103,11 +103,8 @@ func (r *Robot) stop() {
 	r.internals.Unload(r)
 }
 
-func (r *Robot) onMessage(t messageType, m Matcher, h hook) {
-	if m == nil || h == nil {
-		return
-	}
-	for rs := range r.queue.On(t) {
+func (r *Robot) onMessage(ch <-chan Responder, m Matcher, h hook) {
+	for rs := range ch {
 		if m(&rs) {
 			if err := h(rs); err != nil {
 				r.Logger.Errorf("Hook error: %s", err.Error())
@@ -116,20 +113,28 @@ func (r *Robot) onMessage(t messageType, m Matcher, h hook) {
 	}
 }
 
+func (r *Robot) onEvent(ch <-chan Responder, h hook) {
+	for rs := range ch {
+		if err := h(rs); err != nil {
+			r.Logger.Errorf("Hook error: %s", err.Error())
+		}
+	}
+}
+
 // Hear is triggered on any message event.
-func (r *Robot) Hear(m Matcher, h hook) { go r.onMessage(DefaultMessage, m, h) }
+func (r *Robot) Hear(m Matcher, h hook) { go r.onMessage(r.queue.On(DefaultMessage), m, h) }
 
 // Respond is triggered on messages to the bot
-func (r *Robot) Respond(m Matcher, h hook) { go r.onMessage(Response, m, h) }
+func (r *Robot) Respond(m Matcher, h hook) { go r.onMessage(r.queue.On(Response), m, h) }
 
 // Enter is triggered when someone enters a room
-func (r *Robot) Enter(h hook) { go r.onMessage(Enter, nil, h) }
+func (r *Robot) Enter(h hook) { go r.onEvent(r.queue.On(Enter), h) }
 
 // Leave is triggered when someone leaves a room
-func (r *Robot) Leave(h hook) { go r.onMessage(Leave, nil, h) }
+func (r *Robot) Leave(h hook) { go r.onEvent(r.queue.On(Leave), h) }
 
 // Topic is triggered when someone changes the topic
-func (r *Robot) Topic(h hook) { go r.onMessage(Topic, nil, h) }
+func (r *Robot) Topic(h hook) { go r.onEvent(r.queue.On(Topic), h) }
 
 // Username provides the robot's username
 func (r *Robot) Username() string { return r.Chat.Username() }
